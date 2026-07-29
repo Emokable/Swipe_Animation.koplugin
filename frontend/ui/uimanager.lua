@@ -1386,13 +1386,11 @@ function UIManager:_repaint()
                     refresh_fn(Screen, strip_x, 0, strip_w, screen_h)
                 end
                 prev_dx = dx
-                -- Control animation speed with microsecond delay between strips
-                if usleep then
+				-- Skip sleep on the last frame 
+                if i < steps and usleep then
                     usleep(delay_us)
                 end
             end
-            -- Final full-screen refresh using the same mode as the animation strips
-            refresh_fn(Screen, 0, 0, screen_w, screen_h)
 			
             -- ==================== Restore original KOReader full-refresh behavior ====================
             -- The software animation path bypasses the normal partial→full promotion logic.
