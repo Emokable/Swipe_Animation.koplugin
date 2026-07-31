@@ -1,4 +1,4 @@
-[简体中文](./README_zh.md) | **English**
+[简体中文](./README.md) | **English**
 
 # Swipe_Animation
 
@@ -53,7 +53,7 @@ Applicable to Android versions of KOReader running on devices such as **BOOX, iR
 * **Fully tested:** Kobo devices, Kindle devices (including KV, KO, and KPW series), and most Linux-based e-ink devices running KOReader.
 * **Android:** Android devices are **currently not supported**, as the animation performance is not satisfactory on the Android platform.
 ---
-## 菜单结构
+## Menu Constructure
 ```
 Settings (⚙)
 ├── Taps and gestures
