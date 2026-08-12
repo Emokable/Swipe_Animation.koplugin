@@ -163,18 +163,10 @@ end
 -- This method must be called just before drawing a sequence of blits into a framebuffer.
 -- It's ok to spam it for each paint, drivers should ensure to become nop for subsequent calls until final afterPaint().
 function fb:beforePaint()
-    if not self.painting then
-        self.painting = true
-        if self.swipe_animations then
-            if self.saved_bb then self.saved_bb:free() end
-            self.saved_bb = self.bb:copy()
-        end
-    end
 end
 
 -- This method must be called once we're done drawing all batched updates into a framebuffer, and *after* all the necessary fb:refresh* calls.
 function fb:afterPaint()
-    self.painting = false
 end
 
 -- the ...Imp methods may be overridden to implement refresh
@@ -537,12 +529,12 @@ function fb:setupDithering()
     end
 end
 
+-- To be overriden.
 function fb:setSwipeAnimations(enabled)
-    self.swipe_animations = enabled
 end
 
+-- To be overriden.
 function fb:setSwipeDirection(direction)
-    self.swipe_forward = direction
 end
 
 function fb:getWaveformLevel()
@@ -577,7 +569,11 @@ function fb:shot(filename)
     if self.device:hasBGRFrameBuffer() then
         bgr = true
     end
-    self.bb:writePNG(filename, bgr)
+    if self.night_mode then
+        self.bb:copy():invert():writePNG(filename, bgr)
+    else
+        self.bb:writePNG(filename, bgr)
+    end
 end
 
 -- Clear the screen to white

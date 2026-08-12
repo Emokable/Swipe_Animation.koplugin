@@ -2,16 +2,6 @@
 This module manages widgets.
 ]]
 
--- NOTE: This file is a KOReader snapshot with the Swipe_Animation patch applied.
--- Baseline: KOReader master @ ac1416d212157495711144e002e85995aa78eb0a (2026-08-04);
--- last upstream change to this file: fa6b3cde8f71416d15596d9790e859d37b5e1be8 (2026-06-06).
--- The only deviations from upstream are the software swipe animation hook in
--- UIManager:_repaint() (the animation itself lives in
--- patches/2-swipe-animation-core.lua) and the shared tuning table
--- swipe_animation_defaults.
--- After updating KOReader, re-merge this patch on top of the new upstream file
--- instead of blindly overwriting it.
-
 local Device = require("device")
 local Event = require("ui/event")
 local Geom = require("ui/geometry")
@@ -33,13 +23,6 @@ local UIManager = {
         G_reader_settings:isTrue("night_mode") and G_reader_settings:readSetting("night_full_refresh_count") or G_reader_settings:readSetting("full_refresh_count") or DEFAULT_FULL_REFRESH_COUNT,
     refresh_count = 0,
     currently_scrolling = false,
-
-    -- Software swipe animation tuning, shared with
-    -- patches/2-swipe-animation-settings.lua (single source of truth).
-    swipe_animation_defaults = {
-        delay_ms = { landscape = 10, portrait = 20 },
-        steps = { landscape = 6, portrait = 8 },
-    },
 
     -- How long to wait between ZMQ wakeups: 50ms.
     ZMQ_TIMEOUT = 50 * 1000,
@@ -1308,25 +1291,6 @@ function UIManager:_repaint()
     if dirty and not self._refresh_stack[1] then
         logger.dbg("no refresh got enqueued. Will do a partial full screen refresh, which might be inefficient")
         self:_refresh("partial")
-    end
-
-    -- Execute the software wipe animation whenever the frontend requested one.
-    -- This runs on every device: the flag is cleared below so the underlying
-    -- (e.g., MTK) hardware animation is replaced by this software effect
-    -- instead of running on top of it.
-    local software_animate = Screen.swipe_animations
-
-    if software_animate then
-        -- Disable hardware swipe animations and take over refresh counting manually
-        Screen.swipe_animations = false
-        self.refresh_counted = true
-
-        -- The wipe animation and its full-refresh/clearing decisions live in
-        -- the startup patch module; if it failed to load, fall back to no
-        -- animation for this repaint.
-        if SwipeAnimation then
-            SwipeAnimation.runSwipeAnimation(self)
-        end
     end
 
     -- execute refreshes:
